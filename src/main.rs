@@ -39,6 +39,7 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    /// Specify input through the paths of four files.
     Files {
         /// The tab-separated interactome, without a header, containing (a, b) := a -> b directed pairs
         /// with weights - e.g. `SOME_NODE_A\tSOME_NODE_B\t0.683`
@@ -50,7 +51,9 @@ enum Commands {
         /// The targets Growing DAGs should try to end at.
         targets: PathBuf,
     },
+    /// Specify input through a single, containing folder.
     Folder {
+        /// The folder containing an interactome.txt, dag.txt, sources.txt, and targets.txt
         path: PathBuf
     }
 }
