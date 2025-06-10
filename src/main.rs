@@ -125,7 +125,7 @@ fn handle_files(
                 println!("{i}\t{weight}\t{path}");
             },
             None => {
-                log::info!("No more paths could be constructed. Stopping at iteration {i}.");
+                log::warn!("No more paths could be constructed. Stopping at iteration {i}.");
                 break;
             }
         }
