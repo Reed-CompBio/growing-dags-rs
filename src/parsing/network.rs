@@ -55,6 +55,25 @@ pub struct Network<E, S: Eq + Hash> {
 }
 
 impl<E: Clone, S: Eq + Hash + Copy + Ord> Network<E, S> {
+    /// Constructs a new Network with assertions that all of the indices
+    /// are present inside the id_map.
+    pub fn new(
+        graph: DiGraphMap<Either<usize, S>, E, Xxh3Builder>,
+        id_map: BiHashMap<String, usize>,
+    ) -> Self {
+        for node in graph.nodes() {
+            if let Either::Left(node) = node {
+                assert!(id_map.contains_right(&node));
+            }
+        }
+
+        Self {
+            graph,
+            max_id: id_map.right_values().max().copied().unwrap_or(0usize),
+            id_map,
+        }
+    }
+
     pub fn from_lines_over_id_map<
         F: DataFactory<E>,
         I: Iterator<Item = Result<String, io::Error>>,
