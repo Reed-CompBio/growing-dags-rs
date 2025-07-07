@@ -54,8 +54,8 @@ enum Commands {
     /// Specify input through a single, containing folder.
     Folder {
         /// The folder containing an interactome.txt, dag.txt, sources.txt, and targets.txt
-        path: PathBuf
-    }
+        path: PathBuf,
+    },
 }
 
 fn main() -> anyhow::Result<()> {
@@ -69,11 +69,28 @@ fn main() -> anyhow::Result<()> {
             let dag = path.join("dag.txt");
             let sources = path.join("sources.txt");
             let targets = path.join("targets.txt");
-            handle_files(interactome, dag, sources, targets, cli.no_log_transform, cli.k)
-        },
-        Commands::Files { interactome, dag, sources, targets } => {
-            handle_files(interactome, dag, sources, targets, cli.no_log_transform, cli.k)
+            handle_files(
+                interactome,
+                dag,
+                sources,
+                targets,
+                cli.no_log_transform,
+                cli.k,
+            )
         }
+        Commands::Files {
+            interactome,
+            dag,
+            sources,
+            targets,
+        } => handle_files(
+            interactome,
+            dag,
+            sources,
+            targets,
+            cli.no_log_transform,
+            cli.k,
+        ),
     }
 }
 
@@ -119,11 +136,17 @@ fn handle_files(
                 let path = path
                     .into_iter()
                     .filter_map(|node| node.left())
-                    .map(|node| interactome.inner_network.id_from_idx(node).cloned().unwrap())
+                    .map(|node| {
+                        interactome
+                            .inner_network
+                            .id_from_idx(node)
+                            .cloned()
+                            .unwrap()
+                    })
                     .collect::<Vec<_>>()
                     .join("|");
                 println!("{i}\t{weight}\t{path}");
-            },
+            }
             None => {
                 log::warn!("No more paths could be constructed. Stopping at iteration {i}.");
                 break;

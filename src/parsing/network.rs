@@ -5,16 +5,20 @@
 use bimap::BiHashMap;
 use either::Either;
 use never::Never;
-use petgraph::{prelude::{DiGraphMap, GraphMap}, visit::IntoEdgeReferences, Direction};
-use xxhash_rust::xxh3::Xxh3Builder;
+use petgraph::{
+    prelude::{DiGraphMap, GraphMap},
+    visit::IntoEdgeReferences,
+    Direction,
+};
 use std::{
     cmp::max,
     fs::File,
+    hash::Hash,
     io::{self, BufRead, BufReader},
     path::Path,
-    hash::Hash
 };
 use thiserror::Error;
+use xxhash_rust::xxh3::Xxh3Builder;
 
 use super::data::DataFactory;
 
@@ -132,7 +136,11 @@ impl<E: Clone, S: Eq + Hash + Copy + Ord> Network<E, S> {
                     )
                 })?;
 
-            graph.add_edge(Either::Left(source_interactome), Either::Left(target_interactome), data);
+            graph.add_edge(
+                Either::Left(source_interactome),
+                Either::Left(target_interactome),
+                data,
+            );
         }
 
         Ok(Self {
@@ -204,7 +212,10 @@ impl<E: Clone, S: Eq + Hash + Copy + Ord> Network<E, S> {
     }
 
     pub fn as_nodes(&self, nodes: &[&str]) -> Result<Vec<Either<usize, S>>, NetworkIndexError> {
-        nodes.iter().map(|node| self.get_node(node).map(Either::Left)).collect()
+        nodes
+            .iter()
+            .map(|node| self.get_node(node).map(Either::Left))
+            .collect()
     }
 
     /// Gets a string (gene) from a node index. The inverse of `Self::get_node`.
@@ -243,7 +254,8 @@ impl<E: Clone, S: Eq + Hash + Copy + Ord> Network<E, S> {
     }
 
     pub fn destroy_right_nodes(self) -> Network<E, Never> {
-        let mut new_graph = DiGraphMap::with_capacity(self.graph.node_count(), self.graph.edge_count());
+        let mut new_graph =
+            DiGraphMap::with_capacity(self.graph.node_count(), self.graph.edge_count());
 
         for node in self.graph.nodes() {
             new_graph.add_node(Either::Left(node.left().unwrap()));
@@ -256,23 +268,31 @@ impl<E: Clone, S: Eq + Hash + Copy + Ord> Network<E, S> {
                 e.clone(),
             );
         }
-        
+
         Network {
             graph: new_graph,
             id_map: self.id_map,
-            max_id: self.max_id
+            max_id: self.max_id,
         }
     }
 
     pub fn is_node_empty(&self, node: Either<usize, S>) -> bool {
-        self.graph.neighbors_directed(node, Direction::Incoming).next().is_none() &&
-            self.graph.neighbors_directed(node, Direction::Outgoing).next().is_none()
+        self.graph
+            .neighbors_directed(node, Direction::Incoming)
+            .next()
+            .is_none()
+            && self
+                .graph
+                .neighbors_directed(node, Direction::Outgoing)
+                .next()
+                .is_none()
     }
 }
 
 impl<E: Clone> Network<E, Never> {
     pub fn cast_over_never<S: Eq + Hash + Copy + Ord>(self) -> Network<E, S> {
-        let mut new_graph: GraphMap<Either<usize, _>, E, _, _> = DiGraphMap::with_capacity(self.graph.node_count(), self.graph.edge_count());
+        let mut new_graph: GraphMap<Either<usize, _>, E, _, _> =
+            DiGraphMap::with_capacity(self.graph.node_count(), self.graph.edge_count());
 
         for node in self.graph.nodes() {
             new_graph.add_node(Either::Left(node.left().unwrap()));
@@ -285,11 +305,11 @@ impl<E: Clone> Network<E, Never> {
                 e.clone(),
             );
         }
-        
+
         Network {
             graph: new_graph,
             id_map: self.id_map,
-            max_id: self.max_id
+            max_id: self.max_id,
         }
     }
 }

@@ -1,6 +1,7 @@
 use std::{
     cmp::{Ordering, Reverse},
-    collections::{hash_map::Entry, BinaryHeap, HashMap}, hash::Hash,
+    collections::{hash_map::Entry, BinaryHeap, HashMap},
+    hash::Hash,
 };
 
 use ordered_float::OrderedFloat;

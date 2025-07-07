@@ -35,7 +35,8 @@ fn grab_fixture<F: DataFactory<Weight>>(folder: &Path) -> Fixture {
     let targets = read_lines(&targets_path).unwrap();
 
     let network = Network::from_file::<F>(&interactome_path).unwrap();
-    let interactome = Interactome::attach_sources_and_targets(network, &sources, &targets, true).unwrap();
+    let interactome =
+        Interactome::attach_sources_and_targets(network, &sources, &targets, true).unwrap();
 
     let dag = PartialDag::new(
         Network::<(), Never>::from_file_using_id_map::<EmptyTupleDataFactory>(
@@ -93,7 +94,10 @@ fn test_triangle() {
     let mut cache = GrowthCache::new(interactome.clone());
     let grow_weight = grow(&interactome, &mut dag, &mut cache, &mut EdgeCost).unwrap();
 
-    assert_eq!(grow_weight, Some((1.0, vec![Either::Left(1), Either::Left(2)])));
+    assert_eq!(
+        grow_weight,
+        Some((1.0, vec![Either::Left(1), Either::Left(2)]))
+    );
     assert_eq!(
         dag.0
             .inner_network

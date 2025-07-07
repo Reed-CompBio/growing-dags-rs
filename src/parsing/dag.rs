@@ -25,7 +25,8 @@ impl<E: Clone + Default> PartialDag<E> {
         sources: &[String],
         targets: &[String],
     ) -> Result<Self, DAGCreationError> {
-        let interactome = Interactome::attach_sources_and_targets(network, sources, targets, false)?;
+        let interactome =
+            Interactome::attach_sources_and_targets(network, sources, targets, false)?;
 
         if is_cyclic_directed(&interactome.inner_network.graph) {
             return Err(DAGCreationError::IsCyclic);

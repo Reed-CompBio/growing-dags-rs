@@ -40,7 +40,7 @@ pub fn produce_dag<C: Cost>(
     // Prepare the candidate graph by removing the current DAG's edges
     for (source_idx, target_idx, _) in dag.0.inner_network.graph.edge_references() {
         cache.candidate.graph.remove_edge(source_idx, target_idx);
-        
+
         // Remove empty vertices along the edges, getting the induced edge graph
         // of the candidate (except for vertices on the candidate who were already alone)
         // TODO: is that okay?
@@ -54,7 +54,8 @@ pub fn produce_dag<C: Cost>(
 
     // Prepare our 'parents' dictionary of (source, target) <-> (cost, parent)
     let mut paths_parents: Paths<Either<usize, SuperNode>> = HashMap::new();
-    let mut all_targets: HashMap<Either<usize, SuperNode>, Vec<Either<usize, SuperNode>>> = HashMap::new();
+    let mut all_targets: HashMap<Either<usize, SuperNode>, Vec<Either<usize, SuperNode>>> =
+        HashMap::new();
 
     // Create a topological sorting of all of the current nodes
     let nodes = toposort(&dag.0.inner_network.graph, None).unwrap();
@@ -70,13 +71,18 @@ pub fn produce_dag<C: Cost>(
             .graph
             .contains_edge(node_id, Either::Right(SuperNode::Target))
         {
-            paths_parents.insert((node_id, Either::Right(SuperNode::Target)), (f64::INFINITY, None));
+            paths_parents.insert(
+                (node_id, Either::Right(SuperNode::Target)),
+                (f64::INFINITY, None),
+            );
             log::trace!("Node ID {node_id:?} is connected to the super target. Adjusting.");
             continue;
         }
 
         if !cache.candidate.graph.contains_node(node_id) {
-            log::debug!("Skipping {node_id:?} named {node_name} as it is not in the candidate graph.");
+            log::debug!(
+                "Skipping {node_id:?} named {node_name} as it is not in the candidate graph."
+            );
             continue;
         }
 
@@ -98,7 +104,12 @@ pub fn produce_dag<C: Cost>(
             .filter(|&n| n != node_id && !ancestors.contains(&n))
             .collect::<Vec<_>>();
 
-        log::info!("Running dijkstra on {node_name} ({}/{}) over {} edges", idx, dag.0.inner_network.graph.node_count(), &cache.candidate.graph.edge_count());
+        log::info!(
+            "Running dijkstra on {node_name} ({}/{}) over {} edges",
+            idx,
+            dag.0.inner_network.graph.node_count(),
+            &cache.candidate.graph.edge_count()
+        );
         // and calculate paths!
         calculate_paths(
             &mut paths_parents,

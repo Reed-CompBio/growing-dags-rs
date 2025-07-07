@@ -2,7 +2,11 @@ use either::Either;
 use petgraph::algo::all_simple_paths;
 use xxhash_rust::xxh3::Xxh3Builder;
 
-use crate::parsing::{dag::PartialDag, interactome::{Interactome, SuperNode}, weight::Weight};
+use crate::parsing::{
+    dag::PartialDag,
+    interactome::{Interactome, SuperNode},
+    weight::Weight,
+};
 
 /// A 'cost' trait. This trait is usually added to some cost cache,
 /// allowing for persistent information across `cost_of` runs.
@@ -76,7 +80,8 @@ impl Cost for PathCost {
             &new_dag.0.inner_network.graph,
             Either::Right(SuperNode::Source),
             Either::Right(SuperNode::Target),
-            0, None
+            0,
+            None,
         );
 
         let mut relative_cost = 0_f64;
@@ -85,7 +90,12 @@ impl Cost for PathCost {
             for i in 0..path.len() - 1 {
                 let source = path[i];
                 let target = path[i + 1];
-                let weight = main.inner_network.graph.edge_weight(source, target).copied().unwrap();
+                let weight = main
+                    .inner_network
+                    .graph
+                    .edge_weight(source, target)
+                    .copied()
+                    .unwrap();
                 relative_cost += weight.0;
             }
         }
@@ -125,7 +135,7 @@ mod tests {
             main_network,
             &["A".to_string()],
             &["C".to_string()],
-            true
+            true,
         )
         .unwrap();
 

@@ -10,7 +10,7 @@ use crate::parsing::network::Network;
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum SuperNode {
     Source,
-    Target
+    Target,
 }
 
 impl Ord for SuperNode {
@@ -53,7 +53,7 @@ impl<E: Default + Clone> Interactome<E> {
         network: Network<E, Never>,
         sources: &[String],
         targets: &[String],
-        require_sources_and_targets: bool
+        require_sources_and_targets: bool,
     ) -> Result<Self, InteractomeAttachError> {
         let mut network = network.cast_over_never();
         let super_source = network.graph.add_node(Either::Right(SuperNode::Source));
@@ -69,32 +69,32 @@ impl<E: Default + Clone> Interactome<E> {
         let sources = sources
             .iter()
             .filter_map(|source| {
-                let source_id = network
-                    .id_map
-                    .get_by_left(source)
-                    .copied();
+                let source_id = network.id_map.get_by_left(source).copied();
 
                 if !require_sources_and_targets && source_id.is_none() {
                     return None;
                 }
-                
-                Some(source_id.ok_or_else(|| InteractomeAttachError::SourceNotExists(source.to_string())))
+
+                Some(
+                    source_id
+                        .ok_or_else(|| InteractomeAttachError::SourceNotExists(source.to_string())),
+                )
             })
             .collect::<Result<Vec<_>, _>>()?;
 
         let targets = targets
             .iter()
             .filter_map(|target| {
-                let target_id = network
-                    .id_map
-                    .get_by_left(target)
-                    .copied();
+                let target_id = network.id_map.get_by_left(target).copied();
 
                 if !require_sources_and_targets && target_id.is_none() {
                     return None;
                 }
-                
-                Some(target_id.ok_or_else(|| InteractomeAttachError::SourceNotExists(target.to_string())))
+
+                Some(
+                    target_id
+                        .ok_or_else(|| InteractomeAttachError::SourceNotExists(target.to_string())),
+                )
             })
             .collect::<Result<Vec<_>, _>>()?;
 
@@ -113,7 +113,7 @@ impl<E: Default + Clone> Interactome<E> {
         Ok(Self {
             inner_network: network,
             sources,
-            targets
+            targets,
         })
     }
 
@@ -122,7 +122,7 @@ impl<E: Default + Clone> Interactome<E> {
         match id {
             Either::Left(id) => self.inner_network.id_from_idx(id).cloned(),
             Either::Right(SuperNode::Source) => Some("[[Super Source]]".to_string()),
-            Either::Right(SuperNode::Target) => Some("[[Super Target]]".to_string())
+            Either::Right(SuperNode::Target) => Some("[[Super Target]]".to_string()),
         }
     }
 }
@@ -156,7 +156,7 @@ mod tests {
             network,
             &["A".to_string(), "B".to_string(), "C".to_string()],
             &["X".to_string(), "Y".to_string()],
-            true
+            true,
         )
         .unwrap();
 
