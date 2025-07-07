@@ -54,14 +54,18 @@ enum Commands {
     Files {
         /// The tab-separated interactome, without a header, containing (a, b) := a -> b directed pairs
         /// with weights - e.g. `SOME_NODE_A\tSOME_NODE_B\t0.683`
+        #[arg(short, long)]
         interactome: PathBuf,
         /// The tab-separated initial DAG, which is usually a known gold-standard pathway in the above PPI.
         /// If a dag isn't specified, one is automatically inferred through an arbitrarily chosen
         /// shortest path from any source to any target.
+        #[arg(short, long)]
         dag: Option<PathBuf>,
         /// The sources Growing DAGs should try to start at.
+        #[arg(short, long)]
         sources: PathBuf,
         /// The targets Growing DAGs should try to end at.
+        #[arg(short, long)]
         targets: PathBuf,
     },
     /// Specify input through a single, containing folder.
